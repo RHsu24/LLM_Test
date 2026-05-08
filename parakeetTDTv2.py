@@ -1,10 +1,8 @@
-from transformers import AutoProcessor, CohereAsrForConditionalGeneration
-from transformers.audio_utils import load_audio
-from dotenv import load_dotenv
-from huggingface_hub import login
 import torch
+import torchvision
 import soundfile as sf
 import soxr
+import nemo.collections.asr as nemo_asr
 import os
 from pathlib import Path
 import argparse
@@ -65,32 +63,16 @@ def main():
             # Create list of filepaths
             audio_files.append(word['Audio'])
             transcriptions.append(word['Text'])
-    # Access gated model
-    # Load the .env file
-    load_dotenv()
-    # Get the token and log in
-    hf_token = os.getenv("HF_TOKEN")
-    if hf_token:
-        login(token=hf_token)
-    else:
-        raise NameError(f'Warning: HF_TOKEN not found in environment.')
-    
-    processor = AutoProcessor.from_pretrained("CohereLabs/cohere-transcribe-03-2026")
-    model = CohereAsrForConditionalGeneration.from_pretrained("CohereLabs/cohere-transcribe-03-2026", device_map="auto")
-
-    inputs = processor(audio_files, sampling_rate=16000, return_tensors="pt", language="en")
-    audio_chunk_index = inputs.get("audio_chunk_index")
-    inputs.to(model.device, dtype=model.dtype)
-
-    outputs = model.generate(**inputs, max_new_tokens=256)
-    results = processor.decode(
-        outputs, skip_special_tokens=True, audio_chunk_index=audio_chunk_index, language="en"
-    )
-    if task == 1:
-        sw.workbook_write(word_ts,results, task, script_name)
-    else: 
-        sw.evaluation(results,transcriptions)
-    
+    # Model
+    asr_model = nemo_asr.models.ASRModel.from_pretrained(model_name="nvidia/parakeet-tdt-0.6b-v2")
+    results = asr_model.transcribe(audio_files,batch_size=16)
+    transcriptions = [hyp.text for hyp in results]
+    sw.workbook_write(word_ts,transcriptions, task, script_name)
+    print("Finished!!")
 
 if __name__ == '__main__':
+
+    welcome_msg = "This is here to show it is running\n"
+    print(welcome_msg)
+    
     main()
