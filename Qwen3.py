@@ -1,10 +1,11 @@
 import torch
+from qwen_asr import Qwen3ASRModel
 import os
-import argparse
-import sys
+import numpy as np
 import soundfile as sf
 import soxr
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+import argparse
+import sys
 import segment_wav as sw
 
 def main():
@@ -44,45 +45,28 @@ def main():
             waveform = waveform.T
             
         audio_files.append(waveform.squeeze().numpy())
-            
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model_name = "ibm-granite/granite-speech-4.1-2b"
-    torch_dtype = torch.bfloat16 if torch.cuda.is_available() else torch.bfloat32
-    processor = AutoProcessor.from_pretrained(model_name)
-    tokenizer = processor.tokenizer
-    model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_name, device_map=device, torch_dtype=torch_dtype
+    
+    
+    # Qwen3ASRModel natively converts our 44.1kHZ input to 16kHz
+    model = Qwen3ASRModel.from_pretrained(
+        "Qwen/Qwen3-ASR-1.7B",
+        dtype=torch.bfloat16,
+        device_map="auto",
+        # attn_implementation="flash_attention_2",
+        max_inference_batch_size=16, # Batch size limit for inference. -1 means unlimited. Smaller values can help avoid OOM.
+        max_new_tokens=16, # Maximum number of tokens to generate. Set a larger value for long audio input.
     )
-
-    # Create text prompt
-    user_prompt = "<|audio|>Transcribe the audio into a written format, assuming Australian English"
-    chat = [
-        {"role": "user", "content": user_prompt}
-    ]
-    prompt = tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt = True)
-    prompts = [prompt] * len(audio_files)
-    # Run the processor + model
-    model_inputs = processor(text=prompts, audio=audio_files, 
-                             device=device, return_tensors="pt", padding = True).to(device)
-    model_outputs = model.generate(
-        **model_inputs, max_new_tokens=256, do_sample=False, num_beams=1
+    formatted_inputs = []
+    for buf in audio_files:
+        formatted_inputs.append((buf, 16000))
+    results = model.transcribe(
+        audio=formatted_inputs,
+        language="English", # set "English" to force the language
     )
-
-    # Transformers includes the input IDs in the response
-    num_input_tokens = model_inputs["input_ids"].shape[-1]
-    new_tokens = model_outputs[0, num_input_tokens:].unsqueeze(0)
-    results = tokenizer.batch_decode(
-        model_outputs, add_special_tokens=False, skip_special_tokens=True
-    )
-    recognised_word = []
+    recognised_text = []
     for rec_word in results:
-    # The results list containts user prompt & assistant reply, so we 
-    # will need to process it ourselves
-        reply = rec_word.rpartition("ASSISTANT:")
-        recognised_word.append(reply[2])
-        print(reply[2])
-    sw.workbook_write(word_ts,recognised_word, task, script_name)
+        recognised_text.append(rec_word.text)
+    sw.workbook_write(word_ts,recognised_text, task, script_name)
     print("Finished!!")
 
 if __name__ == '__main__':

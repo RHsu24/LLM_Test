@@ -40,6 +40,7 @@ def workbook_write(word_files, results, task, name):
     worksheet.write('A1','Expected', bold)
     worksheet.write('B1','Recognised', bold)
     worksheet.write('C1', "Binary_eval", bold)
+    eval_count = total = 0
     if task == 1:
         for i, (word,r) in enumerate(zip(word_files,results)):
             read_word = word['text']
@@ -49,6 +50,11 @@ def workbook_write(word_files, results, task, name):
             worksheet.write(i+1,0,word_clean)
             worksheet.write(i+1,1,asr_clean)
             worksheet.write(i+1,2, word_clean.casefold() == asr_clean.casefold())
+            if word_clean.casefold() != asr_clean.casefold():
+                eval_count +=1
+            total +=1
+        worksheet.write(total+2,1,'WER', bold)
+        worksheet.write(total+2,2,eval_count/total)
     elif task == 3:
         placeholder = []
 
