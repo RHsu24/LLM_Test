@@ -23,5 +23,5 @@ How To Run:
 
 ```--file_suffix FILE_SUFFIX``` -> Optional Argument
 
-* &#x20;This is any text in the filename that comes after the set name (to match to .wav file) but before the file format (.csv). For example, if my transcription file is 228_task3_child.csv and my audio file is 228_task3.wav, then the FILE_SUFFIX is ```_child```. If no optional argument input, please ensure file names (excluding file format) are **EXACTLY** the same.
+* &#x20;This is any text in the filename that comes after the set name (to match to .wav file) but before the file format (.csv). For example, if my transcription file is 228_task3_child.csv and my audio file is 228_task3.wav, then the FILE_SUFFIX is ```_child```. If no optional argument input, please ensure file names (excluding file format) are **EXACTLY** the same, and no extra .csv files are in the ```TRANSCRIPT_DIR``` directory.
 
