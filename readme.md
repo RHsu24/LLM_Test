@@ -1,6 +1,6 @@
-### README for csv\_parse.py
+### README for csv_parse.py
 
-```csv\_parse.py``` is designed to read in a directory containing any number of transcription .csv files with timestamps, and their associated audio .wav files. It will then compile a complete list of every valid set of transcription files and associate audio .wav files into a 'master' transcription file.
+```csv_parse.py``` is designed to read in a directory containing any number of transcription .csv files with timestamps, and their associated audio .wav files. It will then compile a complete list of every valid set of transcription files and associate audio .wav files into a 'master' transcription file.
 
 
 
@@ -15,13 +15,13 @@ Before running:
 
 How To Run:
 
-```python csv\_parse.py {TRANSCRIPT\_DIR} --file\_suffix {FILE\_SUFFIX}```
+```python csv_parse.py {TRANSCRIPT_DIR} --file_suffix {FILE_SUFFIX}```
 
-```{TRANSCRIPT\_DIR}``` -> Required 
+```{TRANSCRIPT_DIR}``` -> Required 
 
 * Directory containing any number of sets of transcription .csv files and their associated .wav file
 
-```--file\_suffix file\_suffix``` -> Optional Argument
+```--file_suffix file_suffix``` -> Optional Argument
 
-* &#x20;This is any text in the filename that comes after the set name (to match to .wav file) but before the file format (.csv). For example, if my transcription file is 228\_task3\_child.csv and my audio file is 228\_task3.wav, then the file\_suffix is ```\_child```
+* &#x20;This is any text in the filename that comes after the set name (to match to .wav file) but before the file format (.csv). For example, if my transcription file is 228_task3_child.csv and my audio file is 228_task3.wav, then the file_suffix is ```_child```
 
