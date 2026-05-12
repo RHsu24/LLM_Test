@@ -1,6 +1,6 @@
 ### README for csv\_parse.py
 
-==csv\_parse.py== is designed to read in a directory containing any number of transcription .csv files with timestamps, and their associated audio .wav files. It will then compile a complete list of every valid set of transcription files and associate audio .wav files into a 'master' transcription file.
+```csv\_parse.py``` is designed to read in a directory containing any number of transcription .csv files with timestamps, and their associated audio .wav files. It will then compile a complete list of every valid set of transcription files and associate audio .wav files into a 'master' transcription file.
 
 
 
