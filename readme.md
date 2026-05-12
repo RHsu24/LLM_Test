@@ -15,7 +15,7 @@ Before running:
 
 How To Run:
 
-```python csv_parse.py {TRANSCRIPT_DIR} --file_suffix {FILE_SUFFIX}```
+```python csv_parse.py TRANSCRIPT_DIR --file_suffix FILE_SUFFIX```
 
 ```{TRANSCRIPT_DIR}``` -> Required 
 
