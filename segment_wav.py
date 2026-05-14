@@ -60,7 +60,7 @@ def workbook_write(word_files, results, task, name):
 
     workbook.close()
 
-def wav_manip(wav, dict):
+def wav_manip(wav, dict): # manipulate short, individual audio files from one long audio file
     word_count = 1
     word_buffer = []
     try: 
@@ -74,11 +74,8 @@ def wav_manip(wav, dict):
 
             for row in dict:
                 buffer = io.BytesIO()
-                txt_count =  f"{word_count:03d}"
-                wav_name = row['text']
                 t_start =   float(row['tmin'])
                 t_end = float(row['tmax'])
-                # print(f'{new_wav_name}, {t_start}, {t_end}')
                 word_count += 1
                 start_frame = math.floor(t_start*frame_rate)
                 end_frame = math.ceil(t_end*frame_rate)
@@ -97,6 +94,47 @@ def wav_manip(wav, dict):
         print(f"Error: Could not read WAV file. {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+    return word_buffer
+
+def wav_manip_long(dict_list): # manipulate a long list (listed in .csv) of audio files
+    word_buffer = []
+
+    for row in dict_list:
+        wav = row['Audio']
+        buffer = io.BytesIO()
+        t_start = float(row['tmin'])
+        t_end = float(row['tmax'])
+        
+        try: 
+            #print(f"Checking file: {wav}, Size: {os.path.getsize(wav)} bytes")
+            with wave.open(wav,'rb') as wav_file:
+                # .wav file data
+                channels = wav_file.getnchannels()  # Mono or Stereo
+                sample_width = wav_file.getsampwidth()  # Bytes
+                frame_rate = wav_file.getframerate()    # Sampling Frequency
+                comp_type = wav_file.getcomptype()
+                comp_name = wav_file.getcompname()
+                
+                # go to actual transcribed audio
+                start_frame = math.floor(t_start*frame_rate)
+                end_frame = math.ceil(t_end*frame_rate)
+                word_frames_tot = end_frame - start_frame
+                wav_file.setpos(start_frame)
+                word_bytes = wav_file.readframes(word_frames_tot)
+                # Save to buffer
+                with wave.open(buffer,'wb') as wav_word:
+                    wav_word.setparams((channels, sample_width, frame_rate, word_frames_tot,comp_type,comp_name))
+                    wav_word.writeframes(word_bytes)
+                    word_buffer.append(buffer)
+
+        except FileNotFoundError:
+            print(f"Error: The file {wav_file} was not found.")
+        except wave.Error as e:
+            # Catches invalid formats, corrupt files, or non-WAV files
+            print(f"Error: Could not read WAV file. {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
     return word_buffer
 
 def read_transcript(word_ts):

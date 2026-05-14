@@ -1,22 +1,37 @@
 from transformers import AutoProcessor, CohereAsrForConditionalGeneration
-from transformers.audio_utils import load_audio
 from dotenv import load_dotenv
 from huggingface_hub import login
 import torch
 import soundfile as sf
 import soxr
 import os
-from pathlib import Path
 import argparse
 import segment_wav as sw
 
+def format_audio(segm_wav):
+    formatted_audio = []
+# Load audio into correct format for ASR model
+    for files in segm_wav:
+        files.seek(0)
+        word_audio,sr = sf.read(files)
+        if sr != 16000:
+            wave = soxr.resample(word_audio, sr, 16000)
+
+        # Convert to mono if it has 2 channels
+        waveform = torch.from_numpy(wave).float()
+        if waveform.ndim == 1:
+            waveform = waveform.unsqueeze(0)
+        else:
+            waveform = waveform.T
+            
+    formatted_audio.append(waveform.squeeze().numpy())
+    return formatted_audio
+
 def main():
     # Parse Cmd line arguments
-    cwd = Path.cwd()
-    default_path = Path("/srv/scratch/speechdata")
     script_name = os.path.basename(__file__)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--transcript_dir', type=str, required=True,
+    parser.add_argument('transcript_dir', type=str,
                         help="Absolute or Relative file path to the .csv transcription file with column 1 " \
                         "containing audio PATH and column 2 containing the transcription.")
     # Optional Arg for task 1 and testing purposes
@@ -40,21 +55,7 @@ def main():
         task = 1
         path_audio = args.data_dir
         segm_wav = sw.wav_manip(path_audio,word_ts)
-        # Load audio
-        for files in segm_wav:
-            files.seek(0)
-            word_audio,sr = sf.read(files)
-            if sr != 16000:
-                wave = soxr.resample(word_audio, sr, 16000)
-
-            # Convert to mono if it has 2 channels
-            waveform = torch.from_numpy(wave).float()
-            if waveform.ndim == 1:
-                waveform = waveform.unsqueeze(0)
-            else:
-                waveform = waveform.T
-                
-            audio_files.append(waveform.squeeze().numpy())
+        audio_files = format_audio(segm_wav)
 
     # If no data_dir argument given, assume .csv file follows format of col 1 - audio path & col 2 - transcript
     else:
@@ -62,9 +63,11 @@ def main():
         task = 3
         # For Task 3 - Sentences (Assumed .csv format)
         for word in word_ts:
-            # Create list of filepaths
-            audio_files.append(word['Audio'])
             transcriptions.append(word['Text'])
+            
+        segm_wav = sw.wav_manip_long(word_ts)
+        audio_files = format_audio(segm_wav)
+
     # Access gated model
     # Load the .env file
     load_dotenv()
