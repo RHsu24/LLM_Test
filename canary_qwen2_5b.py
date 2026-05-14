@@ -1,14 +1,14 @@
+from nemo.collections.speechlm2.models import SALM
 import torch
-import torchvision
+from torch.nn.utils.rnn import pad_sequence
 import soundfile as sf
 import soxr
-import nemo.collections.asr as nemo_asr
 import os
-from pathlib import Path
 import argparse
 import segment_wav as sw
 
 def format_audio(segm_wav):
+    audio_frames = []
     audio_files = []
     # Load audio
     for files in segm_wav:
@@ -23,12 +23,24 @@ def format_audio(segm_wav):
             waveform = waveform.unsqueeze(0)
         else:
             waveform = waveform.T
+        audio_frames.append(waveform.size)
         audio_files.append(waveform.squeeze().numpy())
-    return audio_files
+
+    tensor_list = [torch.as_tensor(audio).float().squeeze() for audio in audio_files] # Convert arrays into 1D PyTorch tensors
+    # Track original unpadded lengths (for NeMo unmasking)
+    audio_lengths = torch.tensor([t.shape[0] for t in tensor_list], dtype=torch.int32)
+    # Dynamic padding to match the longest audio track batch, makes rectangular tensor of shape (batch_size, max_sequence_length)
+    audios = pad_sequence(tensor_list, batch_first=True, padding_value=0.0)
+
+    return audio_lengths, audios
 
 def main():
-    # Parse Cmd line arguments
+    ########## Parse Cmd line arguments ############
     script_name = os.path.basename(__file__)
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
     parser = argparse.ArgumentParser()
     parser.add_argument('transcript_dir', type=str,
                         help="Absolute or Relative file path to the .csv transcription file with column 1 " \
@@ -53,7 +65,7 @@ def main():
         task = 1
         path_audio = args.data_dir
         segm_wav = sw.wav_manip(path_audio,word_ts)
-        audio_files = format_audio(segm_wav)
+        audio_lengths, audios = format_audio(segm_wav)
 
     # If no data_dir argument given, assume .csv file follows format of col 1 - audio path & col 2 - transcript
     else:
@@ -62,21 +74,26 @@ def main():
         # For Task 3 - Sentences (Assumed .csv format)
         for word in word_ts:
             transcriptions.append(word['Text'])
-
         segm_wav = sw.wav_manip_long(word_ts)
-        audio_files = format_audio(segm_wav)
+        audio_lengths, audios = format_audio(segm_wav)
 
-
-    ############# Model-Specific Code ##############
-    asr_model = nemo_asr.models.ASRModel.from_pretrained(model_name="nvidia/parakeet-tdt-0.6b-v2")
-    results = asr_model.transcribe(audio_files,batch_size=16)
-    transcriptions = [hyp.text for hyp in results]
-    sw.workbook_write(word_ts,transcriptions, task, script_name)
-    print("Finished!!")
+    #######################################################################################
+    # Model Specific Code
+    model = SALM.from_pretrained('nvidia/canary-qwen-2.5b').bfloat16().eval().to(device)
+    answer_ids = model.generate(
+        prompts=[
+            [{"role": "user", "content": f"Transcribe the following: {model.audio_locator_tag}"}]]*len(audios),
+                audios=audios.to(device, non_blocking=True),
+                audio_lens = audio_lengths.to(device, non_blocking=True),
+                max_new_tokens=128,
+    )
+    results = [model.tokenizer.ids_to_text(oids) for oids in answer_ids.cpu()]
+    # print(results)
+    if task == 1:
+        sw.workbook_write(word_ts,results, task, script_name)
+    else: 
+        sw.evaluation(results,transcriptions)
+    
 
 if __name__ == '__main__':
-
-    welcome_msg = "This is here to show it is running\n"
-    print(welcome_msg)
-    
     main()
