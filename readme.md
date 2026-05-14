@@ -38,7 +38,7 @@ This repository was used to test some of the top ASR (Automatic Speed Recognitio
 
 The current models, with corresponding scripts available to test are:
 
-[Qwen/Qwen3-ASR-1.7B](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) with ```Qwen3.py`
+[Qwen/Qwen3-ASR-1.7B](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) with ```Qwen3.py```
 
 [CohereLabs/cohere-transcribe-03-2026](https://huggingface.co/CohereLabs/cohere-transcribe-03-2026) with ```coherelabs_transcribe.py```
 
@@ -67,7 +67,7 @@ Do this by (on Linux): ```export HF_HOME='/usr/directory/of/choice'```
 
 Ensure you have several different PYTHON_PATH environment variables and virtual environments set up. These scripts have inherited different package versions and (in the case of canary-qwen-2.5B) **even different Python versions** from the requirements of the ASR models. Many of these scripts will **not** run on newer versions of packages. For more information on script package/version requirements, refer below.
 
-
+The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN```
 
 
 
