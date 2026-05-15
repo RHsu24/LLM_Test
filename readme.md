@@ -127,7 +127,7 @@ Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE``
 * --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
 * AUDIO_FILE - the audio (.wav) file you want the script to read from.
 
-
+Please beware of long transcription times. While Flash-Attn is natively supported by some of the models, it is highly dependent on the accessible GPU nodes available. If you wish to use Flash-Attn, please ensure your GPU is compatible.
 
 
 ##### 5. OUTPUT:
