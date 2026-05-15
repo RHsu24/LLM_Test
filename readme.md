@@ -103,4 +103,10 @@ It is possible that some or all of these scripts could run on different versions
 
 
 
-###### PACKAGES
+###### PACKAGES 
+While most of the ASR models have different package version requirements, there was some attempt to collate model test scripts into as few sets of package requirements as possible. As of now, there are 5 different sets of packages:
+* cohereLabs, openai-whisper and mistralai-Voxel-Small - see ```coherelabs_req```
+* parakeet-tdt and IBM-Granite-4 - see ```parakeet_reqs.txt```
+* Qwen3
+* Canary-Qwen
+* Phi-4
