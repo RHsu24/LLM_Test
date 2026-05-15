@@ -44,7 +44,7 @@ The current models, with corresponding scripts available to test are:
 
 [CohereLabs/cohere-transcribe-03-2026](https://huggingface.co/CohereLabs/cohere-transcribe-03-2026) with ```coherelabs_transcribe.py```
 
-[Lexius/Phi-4-multimodal-instruct](https://huggingface.co/Lexius/Phi-4-multimodal-instruct) - with ```Phi_4.py```
+[Lexius/Phi-4-multimodal-instruct](https://huggingface.co/Lexius/Phi-4-multimodal-instruct) with ```Phi_4.py```
 
 [nvidia/parakeet-tdt-0.6b-v2](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2) with ```parakeetTDTv2.py```
 
@@ -71,7 +71,7 @@ Ensure you have several different PYTHON_PATH environment variables and virtual 
 
 The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN```
 
-
+For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax]\ in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). If they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with.
 
 ##### 3. REQUIREMENTS:
 
@@ -107,8 +107,30 @@ It is possible that some or all of these scripts could run on different versions
 
 ###### PACKAGES 
 While most of the ASR models have different package version requirements, there was some attempt to collate model test scripts into as few sets of package requirements as possible. As of now, there are 5 different sets of packages:
-* cohereLabs, openai-whisper and mistralai-Voxel-Small - see ```coherelabs_req```
+* cohereLabs, openai-whisper and mistralai-Voxel-Small - see ```coherelabs_req.txt```
 * parakeet-tdt and IBM-Granite-4 - see ```parakeet_reqs.txt```
 * Qwen3
-* Canary-Qwen
-* Phi-4
+* Canary-Qwen - see ```canary_qwen-reqs.txt```
+* Phi-4 - see ```Phi4_reqs.txt```
+
+
+
+
+##### 4. HOW TO RUN:
+
+Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
+* SCRIPT_NAME is simply the name of the Python script you wish to run
+* CSV_FILE - the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
+* --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
+* AUDIO_FILE the audio (.wav) file you want the script to read from.
+
+
+
+
+##### 5. OUTPUT:
+Output when only including CSV_FILE and no optional arguments:
+* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segm_wav.py```
+
+Output when including CSV_FILE and optional argument AUDIO_FILE
+* Writes to a workbook named ```{SCRIPT_NAME}_test.py``` containing the predicted word, the reference (transcription) and the binary evaluation
+
