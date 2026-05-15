@@ -10,6 +10,7 @@ Before running:
 * This script is designed for downstream use in testing ASR models, and as such keywords (such as the master-transcription file headers) are important. Please think carefully about renaming them.
 * Ensure all your .csv files have a **single** corresponding .wav file. It will throw an error if it cannot find a matching .wav file, but **will not** if it can find more than 1 matching .wav file.
 * Run this .py script on the same OS as downstream testing scripts. This is because we are saving pathnames into a csv and delimiting between '\\' (Windows) and '/' (MacOS/Linux) may become an issue.
+* Ensure your audio lengths (as described by \[tmin,tmax]) are **less than 30 seconds**. Because the output transcription will be used for downstream ASR testing as a standard input, excessive padding will dramatically inflate processing time. For more information, see the '2. Before Running' section of the LLM_REPOSITORY README (below)
 
 
 
@@ -72,7 +73,7 @@ Ensure you have several different PYTHON_PATH environment variables and virtual 
 
 The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN```
 
-For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). If they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with.
+For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). Some models support chunking - if they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with. Some will produce unpredictable behaviour - particularly when there is extremely high variance between audio file lengths (1~30s).
 
 ##### 3. REQUIREMENTS:
 
