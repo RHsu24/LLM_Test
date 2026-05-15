@@ -26,6 +26,7 @@ How To Run:
 * &#x20;This is any text in the filename that comes after the set name (to match to .wav file) but before the file format (.csv). For example, if my transcription file is 228_task3_child.csv and my audio file is 228_task3.wav, then the FILE_SUFFIX is ```_child```. If no optional argument input, please ensure file names (excluding file format) are **EXACTLY** the same, and no extra .csv files are in the ```TRANSCRIPT_DIR``` directory.
 
 Output:
+
 The output will be ```transcript_master.csv``` by default, containing columns \[Audio, Text, tmin, tmax]\
 
 ### README FOR LLM_TEST REPOSITORY
@@ -129,7 +130,7 @@ Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE``
 
 ##### 5. OUTPUT:
 Output when only including CSV_FILE and no optional arguments:
-* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segm_wav.py```
+* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```
 
 Output when including CSV_FILE and optional argument AUDIO_FILE
 * Writes to a workbook named ```{SCRIPT_NAME}_test.py``` containing the predicted word, the reference (transcription) and the binary evaluation
