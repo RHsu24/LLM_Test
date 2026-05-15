@@ -35,7 +35,7 @@ The output will be ```transcript_master.csv``` by default, containing columns \[
 
 
 
-This repository was used to test some of the top ASR (Automatic Speed Recognition) Models and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed.
+This repository was used to test some of the top ASR (Automatic Speed Recognition) Models from [HuggingFace](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard) and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed.
 
 
 
@@ -64,7 +64,7 @@ The current models, with corresponding scripts available to test are:
 ##### 2. Before Running:
 
 
-Set your ```HF_HOME``` environment variable to a location that has sufficient storage. There will be a significant number of parameters being installed the first time you run each script, with Voxtral-Small-24B-2507 being the largest at 24B parameters. This means there will be \~49GB of tensors downloaded and installed.
+Set your ```HF_HOME``` environment variable to a location that has sufficient storage. There will be a significant number of parameters being installed the first time you run each script, with Voxtral-Small-24B-2507 being the largest at 24B parameters. This means that for mistralai's model alone, there will be \~49GB of tensors downloaded and installed. Additionally, to run all the scripts in one directory, you will need space to store the different virtual environments containing the different package versions (notable large packages include transformers and torch]
 
 Do this by (on Linux): ```export HF_HOME='/usr/directory/of/choice'```
 
@@ -72,7 +72,7 @@ Ensure you have several different PYTHON_PATH environment variables and virtual 
 
 The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN```
 
-For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax]\ in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). If they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with.
+For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). If they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with.
 
 ##### 3. REQUIREMENTS:
 
@@ -115,6 +115,7 @@ While most of the ASR models have different package version requirements, there 
 * Phi-4 - see ```Phi4_reqs.txt```
 
 
+Note: Many of the packages listed in the requirements are simply native packages to the Katana HPC server. Not all packages are strictly required to run these, but it is up to user discretion to determine these, if not running the scripts on Katana. 
 
 
 ##### 4. HOW TO RUN:
@@ -123,7 +124,7 @@ Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE``
 * SCRIPT_NAME is simply the name of the Python script you wish to run
 * CSV_FILE - the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
 * --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
-* AUDIO_FILE the audio (.wav) file you want the script to read from.
+* AUDIO_FILE - the audio (.wav) file you want the script to read from.
 
 
 
@@ -133,5 +134,5 @@ Output when only including CSV_FILE and no optional arguments:
 * Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```
 
 Output when including CSV_FILE and optional argument AUDIO_FILE
-* Writes to a workbook named ```{SCRIPT_NAME}_test.py``` containing the predicted word, the reference (transcription) and the binary evaluation
+* Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row.
 
