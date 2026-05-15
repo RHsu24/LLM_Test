@@ -24,7 +24,7 @@ def format_audio(segm_wav):
         else:
             waveform = waveform.T
             
-    formatted_audio.append(waveform.squeeze().numpy())
+        formatted_audio.append(waveform.squeeze().numpy())
     return formatted_audio
 
 def main():
