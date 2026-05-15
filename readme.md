@@ -28,7 +28,7 @@ How To Run:
 
 Output:
 
-The output will be ```transcript_master.csv``` by default, containing columns \[Audio, Text, tmin, tmax]\
+The output will be ```transcript_master.csv``` by default, containing columns \[Audio, Text, tmin, tmax]
 
 ### README FOR LLM_TEST REPOSITORY
 
@@ -36,7 +36,7 @@ The output will be ```transcript_master.csv``` by default, containing columns \[
 
 
 
-This repository was used to test some of the top ASR (Automatic Speed Recognition) Models from [HuggingFace](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard) and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed.
+This repository was used to test some of the top ASR (Automatic Speed Recognition) Models from [HuggingFace](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard) and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC cluster. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed.
 
 
 
@@ -71,9 +71,9 @@ Do this by (on Linux): ```export HF_HOME='/usr/directory/of/choice'```
 
 Ensure you have several different PYTHON_PATH environment variables and virtual environments set up. These scripts have inherited different package versions and (in the case of canary-qwen-2.5B) **even different Python versions** from the requirements of the ASR models. Many of these scripts will **not** run on newer versions of packages. For more information on script package/version requirements, refer below.
 
-The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN```
+The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN``` (no quote/speech marks). The script for this model will automatically read the ``.env``` file in the same directory
 
-For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). Some models support chunking - if they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with. Some will produce unpredictable behaviour - particularly when there is extremely high variance between audio file lengths (1~30s).
+For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). Some models support chunking via the pipe()  function - if they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with. Some that do not support pipe() will produce unpredictable behaviour - particularly when there is extremely high variance between audio file lengths (1~30s).
 
 ##### 3. REQUIREMENTS:
 
@@ -87,7 +87,7 @@ Runs scripts:
 * coherelabs_transcribe.py
 * Phi_4.py
 * parakeetTDTv2.py
-* openai/whisper-large-v3
+* openai_whisper-large_v3.py
 * ibm_granite4.py
 * mistralai_voxel-small24B.py
 
