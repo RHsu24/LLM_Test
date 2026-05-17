@@ -72,7 +72,7 @@ def main():
         transcriptions = []
         task = 3
         # For Task 3 - Sentences (Assumed .csv format)
-        for word in word_ts:
+        for _ , word in enumerate(word_ts):
             transcriptions.append(word['Text'])
         segm_wav = sw.wav_manip_long(word_ts)
         audio_lengths, audios = format_audio(segm_wav)
