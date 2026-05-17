@@ -36,7 +36,7 @@ The output will be ```transcript_master.csv``` by default, containing columns \[
 
 
 
-This repository was used to test some of the top ASR (Automatic Speed Recognition) Models from [HuggingFace](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard) and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC cluster. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed.
+This repository was used to test some of the top ASR (Automatic Speed Recognition) Models from [HuggingFace](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard) and their effectiveness in inferring words and sentences from recorded audio, compared to manual transcription. These scripts have been designed to run on a HPC (High Performance Computing) Cluster, specifically the Katana HPC cluster. These scripts perform batch inference in non-real-time and are focused on tracking accuracy rather than speed. The tests were all run where datatype was controlled at BF16 (Brain Floating-Point 16) to ensure accuracy was measured fairly.
 
 
 
@@ -76,6 +76,10 @@ The CohereLabs ASR model is a gated model. You will need a token from HuggingFac
 For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). Some models support chunking via the pipe()  function - if they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with. Some that do not support pipe() will produce unpredictable behaviour - particularly when there is extremely high variance between audio file lengths (1~30s).
 
 ##### 3. REQUIREMENTS:
+
+####### HARDWARE
+
+In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 32GB VRAM GPU node. On Katana, this can be requested via the command line ```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. This 32GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any available on such GPU nodes.
 
 ###### PYTHON VERSION
 
