@@ -5,6 +5,7 @@ import soxr
 import argparse
 import segment_wav as sw
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from tqdm import tqdm
 
 def format_audio(segm_wav):
     formatted_audio = []
@@ -61,9 +62,9 @@ def main():
         transcriptions = []
         task = 3
         # For Task 3 - Sentences (Assumed .csv format)
-        for word in word_ts:
+        for _,  word in enumerate(word_ts):
             transcriptions.append(word['Text'])
-            
+
         segm_wav = sw.wav_manip_long(word_ts)
         audio_files = format_audio(segm_wav)
 
@@ -84,16 +85,18 @@ def main():
         model=model,
         tokenizer=processor.tokenizer,
         feature_extractor=processor.feature_extractor,
+        chunk_length_s=30,
+        batch_size = 16,
         torch_dtype=torch_dtype,
         device=device,
     )
-    results = pipe(audio_files, batch_size=8, generate_kwargs={"language": "english"})
+    audio_stream = (audio for audio in audio_files)
+    results = pipe(audio_stream, batch_size=16, generate_kwargs={"language": "english"})
     results_list = list(results)
     print(f"Number of items returned by pipeline: {len(results_list)}")
     predictions = []
     for p, item in enumerate(results):
-        predict = item['text']
-        predictions.append(predict)
+        predictions.append(item['text'])
     if task == 1:
         sw.workbook_write(word_ts,predictions, task, script_name)
     else: 

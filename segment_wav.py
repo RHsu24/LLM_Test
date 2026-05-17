@@ -19,17 +19,26 @@ def evaluation(prediction,reference):
     character = evaluate.load("character")
     predict_clean = []
     ref_clean = []
+    predict_count =  ref_count = 0
+    empty_ref = 0
     for i, (pred, ref) in enumerate(zip(prediction,reference)):
-        predict_clean.append(normalise_word(pred))
-        ref_clean.append(normalise_word(ref))
-        predict_count += len(predict_clean[i].split())
-        ref_count += len(ref_clean[i].split())
+        cleaned_pred = normalise_word(pred)
+        cleaned_ref = normalise_word(ref)
+    # Manually check for None, whitespace or empty string to catch before computing
+        if (not cleaned_ref  or not cleaned_ref.strip() ):
+            empty_ref += 1
+            continue
+        predict_clean.append(cleaned_pred)
+        ref_clean.append(cleaned_ref)
+        predict_count += len(cleaned_pred.split())
+        ref_count += len(cleaned_ref.split())
 
-    char_results = character.compute(references=ref_clean,predictions=ref_clean)
+    char_results = character.compute(references=ref_clean,predictions=predict_clean)
     wer_score = wer.compute(references=ref_clean,predictions=predict_clean)
     # Currently, output to command terminal
     print(f'Word Error Rate: {wer_score}/word over span of {ref_count} words.')
     print(f'Character Error Stats (using Levenshtein distance): {char_results}')
+    print(f'There were {empty_ref} empty reference strings omitted from calculation.')
 
 def workbook_write(word_files, results, task, name):
     script_name = os.path.splitext(name)[0]
@@ -63,6 +72,7 @@ def workbook_write(word_files, results, task, name):
 def wav_manip(wav, dict): # manipulate short, individual audio files from one long audio file
     word_count = 1
     word_buffer = []
+    print(f"Processing Audio Files into Memory...")
     try: 
         #print(f"Checking file: {wav}, Size: {os.path.getsize(wav)} bytes")
         with wave.open(wav,'rb') as wav_file:
@@ -94,11 +104,12 @@ def wav_manip(wav, dict): # manipulate short, individual audio files from one lo
         print(f"Error: Could not read WAV file. {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+    print(f"Parsed Audio into Memory")
     return word_buffer
 
 def wav_manip_long(dict_list): # manipulate a long list (listed in .csv) of audio files
     word_buffer = []
-
+    print(f"Processing Audio Files into Memory...")
     for row in dict_list:
         wav = row['Audio']
         buffer = io.BytesIO()
@@ -134,7 +145,7 @@ def wav_manip_long(dict_list): # manipulate a long list (listed in .csv) of audi
             print(f"Error: Could not read WAV file. {e}")
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-
+    print(f"Parsed Audio into Memory")
     return word_buffer
 
 def read_transcript(word_ts):
