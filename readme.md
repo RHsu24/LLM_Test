@@ -79,7 +79,7 @@ For best performance, please limit the max length of transcribed audio segments 
 
 ###### HARDWARE
 
-In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 32GB VRAM GPU node. On Katana, this can be requested via the command line ```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. This 32GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any available on such GPU nodes. If you wish to use all scripts on the same node (except mistralai-voxel-small-2507), use the L40S GPU model.
+In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 32GB VRAM GPU node. On Katana, this can be requested via the command line ```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. This 32GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any availability on such GPU nodes. If you wish to use all scripts on the same node (except mistralai-voxel-small-2507), use the L40S GPU model.
 
 ###### PYTHON VERSION
 
@@ -113,11 +113,11 @@ It is possible that some or all of these scripts could run on different versions
 
 ###### PACKAGES 
 While most of the ASR models have different package version requirements, there was some attempt to collate model test scripts into as few sets of package requirements as possible. As of now, there are 5 different sets of packages:
-* cohereLabs, openai-whisper and mistralai-Voxel-Small - see ```coherelabs_req.txt```
-* parakeet-tdt and IBM-Granite-4 - see ```parakeet_reqs.txt```
-* Qwen3
-* Canary-Qwen - see ```canary_qwen-reqs.txt```
-* Phi-4 - see ```Phi4_reqs.txt```
+* cohereLabs, openai-whisper and mistralai-Voxel-Small - see ```coherelabs_whisper.txt```,
+* parakeet-tdt and IBM-Granite-4 - see ```parakeet_granite_reqs.txt```,
+* Qwen3 - see ```qwenASR_reqs.txt```
+* Canary-Qwen - see ```canary_qwen-reqs.txt```,
+* and Phi-4 - see ```Phi4_reqs.txt```
 
 
 Note: Many of the packages listed in the requirements are simply native packages to the Katana HPC server. Not all packages are strictly required to run these, but it is up to user discretion to determine these, if not running the scripts on Katana. 
@@ -126,7 +126,7 @@ Note: Many of the packages listed in the requirements are simply native packages
 ##### 4. HOW TO RUN:
 
 Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
-* SCRIPT_NAME is simply the name of the Python script you wish to run
+* SCRIPT_NAME is the name of the Python script you wish to run
 * CSV_FILE - the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
 * --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
 * AUDIO_FILE - the audio (.wav) file you want the script to read from.
