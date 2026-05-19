@@ -136,8 +136,8 @@ Please beware of long transcription times. While Flash-Attn is natively supporte
 
 ##### 5. OUTPUT:
 Output when only including CSV_FILE and no optional arguments:
-* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```
-* Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row. Note that all manual annotation symbols have been removed entirely, for more accurate computation of WER and CER scores.
+* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```. For the purposes of evaluation, all manual annotation symbols have been removed, for more accurate computation of WER and CER scores. 
+* Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row. They manual annotation symbols have left in this output file, to enable better comparison between reference (manual annotation) and prediction (ASR model prediction).
 
 Output when including CSV_FILE and optional argument AUDIO_FILE
 * Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row.
