@@ -73,6 +73,7 @@ Ensure you have several different PYTHON_PATH environment variables and virtual 
 
 The CohereLabs ASR model is a gated model. You will need a token from HuggingFace for this specific model, and store it in a ```.env``` file as a variable ```HF_TOKEN = YOURTOKEN``` (no quote/speech marks). The script for this model will automatically read the ```.env``` file in the same directory and use it to login to the HuggingFace client.
 
+
 For best performance, please limit the max length of transcribed audio segments (which should be described by \[tmin,tmax] in your .csv files) to be 30 seconds. For most if not all of these models, the maximum number of frames they can take is 3000 (30 seconds x 100 frames/s). Some models support chunking via the pipe()  function - if they are longer than 30s, they will be chunked and then re-stitched, resulting in a lower accuracy than if they were 2 separate audio segments to begin with. Some that do not support pipe() will produce unpredictable behaviour - particularly when there is extremely high variance between audio file lengths (1~30s).
 
 ##### 3. REQUIREMENTS:
@@ -132,10 +133,23 @@ For all the scripts except Canary-Qwen, loading Python 3.10.8 before creating a 
 
 Canary-Qwen is the only script that requires a different Python version to run. For this script, you will need to load two modules from Katana:
 ```module load python/3.13.2```
+
+
 ```module load gcc/11.3.0```
 
+
+Then create your environment with the correct version of Python.
+``` python -m venv /path/to/environments/directory/my_env ```
+
+
 Assuming all required scripts have been organised into separate directories,
-```export PYTHONPATH='/usr/directory/with/correct/package/reqs ```
+```export PYTHONPATH='/usr/directory/with/correct/package/reqs' ```
+
+Then finally, activate the virtual environment.
+``` source /path/to/environments/directory/venv/my_env/bin/activate ```
+
+For more information on environments in Katana, see the the [Katana User Documentation](https://docs.restech.unsw.edu.au/)
+
 
 ##### SCRIPTS
 Then run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
