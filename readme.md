@@ -82,7 +82,7 @@ For best performance, please limit the max length of transcribed audio segments 
 
 In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 48GB VRAM GPU node. On Katana, this can be requested via the command line 
 
-```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. 
+```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb:gpu_model=L40S```. 
 
 This 48GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any availability on such GPU nodes. If you wish to use all scripts on the same GPU node (except mistralai-voxel-small-2507), use the L40S GPU model.
 
