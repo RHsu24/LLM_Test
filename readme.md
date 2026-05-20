@@ -157,9 +157,9 @@ For more information on environments in Katana, see the the [Katana User Documen
 ##### SCRIPTS
 Then run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
 * SCRIPT_NAME is the name of the Python script you wish to run
-* CSV_FILE - the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
+* CSV_FILE - the relative/absolute path to the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
 * --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
-* AUDIO_FILE - the audio (.wav) file you want the script to read from.
+* AUDIO_FILE - only required when --data_dir is included - the relative/absolute to the audio (.wav) file you want the script to read from.
 
 Please beware of long transcription times. While Flash-Attn is natively supported by some of the models, it is highly dependent on the accessible GPU nodes available. If you wish to use Flash-Attn, please ensure your GPU is compatible.
 
