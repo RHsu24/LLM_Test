@@ -26,6 +26,36 @@ def format_audio(segm_wav):
         formatted_audio.append(waveform.squeeze().numpy())
     return formatted_audio
 
+def process_input(transcript_dir, data_dir=None):
+        # Transcript PATH is not optional
+    if transcript_dir is not None:
+        if not os.path.exists(transcript_dir):
+            raise FileNotFoundError(f'Please input valid .csv file PATH before running the following code.')
+        path_ts = transcript_dir
+        word_ts = sw.read_transcript(path_ts)
+        transcriptions = word_ts
+    else:
+        raise FileNotFoundError(f'Please input transcription file PATH before running the following code.')
+    
+    # Existence of Optional Arg {Data PATH} determines if Task 1 (Words) or Task 3 (Sentences) evaluation
+    if data_dir is not None:
+        if not os.path.exists(data_dir):
+               raise FileNotFoundError(f'Please prepare the audio file before running the following code.')
+        # For Task 1 - Evaluating Single Words
+        task = 1
+        path_audio = data_dir
+        segm_wav = sw.wav_manip(path_audio,word_ts)
+
+    # If no data_dir argument given, assume .csv file follows format of col 1 - audio path & col 2 - transcript
+    else:
+        transcriptions = []
+        task = 3
+        # For Task 3 - Sentences (Assumed .csv format)
+        for word in word_ts:
+            transcriptions.append(word['Text'])
+        segm_wav = sw.wav_manip_long(word_ts)
+    return transcriptions, segm_wav, task
+
 def main():
 
     # Parse Cmd line arguments
@@ -38,35 +68,9 @@ def main():
     parser.add_argument('--data_dir', type=str, nargs='?',
                         help="Absolute or Relative file PATH to the .wav file.")
     args = parser.parse_args()
-    audio_files = []
-    # Transcript PATH is not optional
-    if args.transcript_dir is not None:
-        if not os.path.exists(args.transcript_dir):
-            raise FileNotFoundError(f'Please input valid .csv file PATH before running the following code.')
-        path_ts = args.transcript_dir
-        word_ts = sw.read_transcript(path_ts)
-    else:
-        raise FileNotFoundError(f'Please input transcription file PATH before running the following code.')
-    # Existence of Optional Arg {Data PATH} determines if Task 1 (Words) or Task 3 (Sentences) evaluation
-    if args.data_dir is not None:
-        if not os.path.exists(args.data_dir):
-               raise FileNotFoundError(f'Please prepare the audio file before running the following code.')
-        # For Task 1 - Evaluating Single Words
-        task = 1
-        path_audio = args.data_dir
-        segm_wav = sw.wav_manip(path_audio,word_ts)
-        audio_files = format_audio(segm_wav)
+    transcriptions, segm_wav, task = process_input(args.transcript_dir, args.data_dir)
 
-    # If no data_dir argument given, assume .csv file follows format of col 1 - audio path & col 2 - transcript
-    else:
-        transcriptions = []
-        task = 3
-        # For Task 3 - Sentences (Assumed .csv format)
-        for _,  word in enumerate(word_ts):
-            transcriptions.append(word['Text'])
-
-        segm_wav = sw.wav_manip_long(word_ts)
-        audio_files = format_audio(segm_wav)
+    audio_files = format_audio(segm_wav)
 
     ############# MODEL SPECIFIC CODE #####################
 
@@ -97,9 +101,9 @@ def main():
     predictions = []
     for p, item in enumerate(results):
         predictions.append(item['text'])
-    if task == 1:
-        sw.workbook_write(word_ts,predictions, task, script_name)
-    else: 
+
+    sw.workbook_write(transcriptions,predictions, task, script_name)
+    if task == 3:
         sw.evaluation(predictions,transcriptions)
 
 if __name__ == '__main__':
