@@ -79,7 +79,8 @@ For best performance, please limit the max length of transcribed audio segments 
 
 ###### HARDWARE
 
-In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 32GB VRAM GPU node. On Katana, this can be requested via the command line ```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. This 32GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any availability on such GPU nodes. If you wish to use all scripts on the same node (except mistralai-voxel-small-2507), use the L40S GPU model.
+In general, the amount of VRAM required to run each script depends on the number of parameters contained in the ASR model. To the extent of testing, all scripts can be run on a 32GB VRAM GPU node. On Katana, this can be requested via the command line ```qsub -I -l select=1:ncpus=8:ngpus=1:mem=46gb```. 
+This 32GB limit comes with the exception of mistralai's Voxtral-Small, which according to its own [documentation](https://huggingface.co/mistralai/Voxtral-Small-24B-2507/discussions/5/files), requires at least 55GB of GPU RAM in bf16 or fp16. This means there are only 2 GPU nodes (H200 & GH200) in Katana that can run this script. Unfortunately, there has not been any availability on such GPU nodes. If you wish to use all scripts on the same node (except mistralai-voxel-small-2507), use the L40S GPU model.
 
 ###### PYTHON VERSION
 
@@ -125,7 +126,19 @@ Note: Many of the packages listed in the requirements are simply native packages
 
 ##### 4. HOW TO RUN:
 
-Run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
+##### ENVIRONMENTS
+For all the scripts except Canary-Qwen, loading Python 3.10.8 before creating a virtual environment is sufficient.
+```module load python/3.10.8```
+
+Canary-Qwen is the only script that requires a different Python version to run. For this script, you will need to load two modules from Katana:
+```module load python/3.13.2```
+```module load gcc/11.3.0```
+
+Assuming all required scripts have been organised into separate directories,
+```export PYTHONPATH='/usr/directory/with/correct/package/reqs ```
+
+##### SCRIPTS
+Then run using Linux command: ```python3 SCRIPT_NAME CSV_FILE --data_dir AUDIO_FILE```
 * SCRIPT_NAME is the name of the Python script you wish to run
 * CSV_FILE - the transcription (.csv) file you want the script to read from. For example, if you are using the output from ```csv_parse.py```, then it will be ```transcript_master.csv```
 * --data_dir - Optional Argument command, included for testing and if you only wish to test a single audio and transcription set.
@@ -136,9 +149,9 @@ Please beware of long transcription times. While Flash-Attn is natively supporte
 
 ##### 5. OUTPUT:
 Output when only including CSV_FILE and no optional arguments:
-* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```. For the purposes of evaluation, all manual annotation symbols have been removed, for more accurate computation of WER and CER scores. 
-* Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row. They manual annotation symbols have left in this output file, to enable better comparison between reference (manual annotation) and prediction (ASR model prediction).
+* Prints to STDOUT stating WER (Word Error Rate) and Character Error Statistics - see evaluation(...) function in ```segment_wav.py```. For the purposes of evaluation, all manual annotation symbols have been removed, for more accurate computation of WER and CER scores. For more information on the evaluation algorithms, see [WER](https://github.com/huggingface/evaluate/tree/main/metrics/wer) and [CER](https://github.com/huggingface/evaluate/tree/main/metrics/character) documentation.
+* Writes to a workbook named ```{SCRIPT_NAME}_test.csv``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row. While removed for the evaluation as mentioned above, the manual annotation symbols have been left in this output file, to enable better user comparison between reference (manual annotation) and prediction (ASR model prediction).
 
 Output when including CSV_FILE and optional argument AUDIO_FILE
-* Writes to a workbook named ```{SCRIPT_NAME}_test.xlsx``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row.
+* Writes to a workbook named ```{SCRIPT_NAME}_test.csv``` containing the predicted word, the reference (transcription) and the binary evaluation.
 
