@@ -170,5 +170,5 @@ Output when only including CSV_FILE and no optional arguments:
 * Writes to a workbook named ```{SCRIPT_NAME}_test.csv``` containing the predicted word, the reference (transcription) and the binary evaluation, with a rudimentary WER evaluation in the last row. While removed for the evaluation as mentioned above, the manual annotation symbols have been left in this output file, to enable better user comparison between reference (manual annotation) and prediction (ASR model prediction).
 
 Output when including CSV_FILE and optional argument AUDIO_FILE
-* Writes to a workbook named ```{SCRIPT_NAME}_test.csv``` containing the predicted word, the reference (transcription) and the binary evaluation.
+* Writes to a workbook named ```{SCRIPT_NAME}_test.csv``` containing the predicted sentence string, the reference (transcription) and the binary evaluation.
 
